@@ -1,0 +1,136 @@
+
+/*
+ Title: Kivi, Paperi, Sakset
+ Author: Tiia Riikonen
+ Date 6.4.2022
+ Comments: Ensimmäinen koodipeli. Arvotaan kolmesta vaihtoehdosta ja paras voittaa.
+ */
+
+#include <iostream>
+#include <cstdio>
+#include <windows.h>
+#include <cctype>      // Muutamia tarvittavia kirjastoja.
+#include <cstdlib>
+#pragma execution_character_set( "utf-8" )
+using namespace std;
+
+struct Player
+{
+    string name;
+    bool is_human;
+    int choice;
+    string choice_name[3] = { "Kivi", "Paperi", "Sakset" };  // Pelaajan valinnat haetaan täältä. Kivi, paperi vai sakset.
+};
+
+void init_player(Player*, bool);
+void who_won(Player*, Player*);
+int make_choice(Player*);
+
+int main(void)  // Pääohjelma
+
+{
+    SetConsoleOutputCP(65001);
+
+    Player p1, cmp;  //pelaajat
+    int rounds;
+    init_player(&p1, true);
+    init_player(&cmp, false);
+
+    cout << "Tervetuloa pelaamaan Kivi, Paperi, Sakset -peliä!" << endl;
+
+
+    cout << "Montako kierrosta pelataan? ";
+    cin >> rounds;
+
+    cout << "Erinomaista " << p1.name << "! Pelataan siis paras " << rounds << " kierroksesta." << endl;
+
+    for (int i = 0; i < rounds; ++i) {
+
+        make_choice(&p1);
+                                    //Pelaajat tekevät valintansa, valinta tehdään 
+        make_choice(&cmp);          //yhtä monta kertaa kuin 
+                                    // käyttäjä on syöttänyt kierroksia=rounds
+        who_won(&p1, &cmp);
+    }
+    return 0;
+}
+
+void who_won(Player* p1, Player* p2) {
+    if (p1->choice == p2->choice) {             // Tasapeli tulee aina kun valinta on sama molemmilla pelaajilla.
+        cout << "Tasapeli!" << std::endl;
+    }
+    else if ((p1->choice == 0 && p2->choice == 2) ||  // Katsotaan kumpi voittaa. Tieto haetaan ylempää 
+        (p1->choice == 1 && p2->choice == 0) ||       // tietueesta: string choice_name[3] = Kivi, 1 = Paperi, 2 = Sakset.
+        (p1->choice == 2 && p2->choice == 1)) {         // Verrataan vaihtoehtoja ja valitaan voittaja.
+        cout << p1->name << " voitti!" << endl; // käyttäjän voitto
+    }
+    else {
+        cout << p2->name << " voitti!" << endl;  // Koneen voitto
+    }
+} 
+
+int make_choice(Player* p)
+{
+    if (p->is_human) {
+        while (true) {
+            cout << "Valitse (K)ivi, (P)aperi tai (S)akset: " << endl;   // Kysytään käyttäjältä minkä "aseen" valitsee.
+            char c_input;
+            cin >> c_input;
+
+            if (tolower(c_input) == 'k')
+            {
+                p->choice = 0;
+                break;
+            }
+            else if (tolower(c_input) == 'p')               // 0 = Kivi, 1 = Paperi, 2 = Sakset.
+            {
+                p->choice = 1;
+                break;
+            }
+            else if (tolower(c_input) == 's')
+            {
+                p->choice = 2;
+                break;
+
+            }
+        }
+    }
+    else
+    {
+        p->choice = rand() % 3;   // Koneen puolesta arvotaan ase.
+    }
+    cout << p->name << " valitsi " << p->choice[p->choice_name] << endl;
+    cout << "" << endl;
+    return 0;
+} 
+
+void init_player(Player* p, bool is_human) {   // Tässä otetaan käyttäjältä nimi, ja satunnaisesti generoidaan vastustajan nimi valmiilta nimilistalta taulukosta.
+                                               // generoidaan vastustajan nimi valmiilta nimilistalta taulukosta.
+    string get_name(); {
+
+        string input;
+        string cmp_name[] = { "Kivi-Mestari", "Saksi-Guru", "KPS-Mestari", "UltimateKPS Champion", "Voittamaton MestariPeluri", "KingPaperi", "Pelin Kuningatar", "Keskivertoinen-Eero" };
+
+        if (is_human)
+        {
+            do
+            {
+                cout << "Mikä on pelaaja nimesi? ";     // Pelaaja 1. nimen pyytäminen
+                cin >> input;
+            } while (input.length() < 4);
+        }
+        else
+        {
+            srand(time(NULL));
+            srand(rand()); srand(rand());    // muussa tapauksessa eli tietokoneelle valitaan 
+            input = cmp_name[rand() % 8];   // satunnainen nimi cmp_name[]- Taulukosta.
+        }
+
+        p->name = input;
+        p->is_human = is_human;
+        p->choice = 0;
+
+        return;
+
+    }
+}
